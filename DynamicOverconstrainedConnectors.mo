@@ -79,26 +79,28 @@ package DynamicOverconstrainedConnectors
       end if;
     end TransmissionLineVariableBranch;
     
-    model Generator "Idealized synchronous generator with ideal voltage control and basic primary frequency control"
-      parameter SI.PerUnit V = 1 "Fixed rotor per unit voltage magnitude";
-      parameter SI.Time Ta = 10 "Acceleration time of turbogenerator Ta = J*omega^2/Pnom";
-      parameter SI.PerUnit droop = 0.05 "Droop coefficient of primary frequency control";
-      ACPort port;
-      SI.PerUnit Ps = 1 "Active power output set point";
-      SI.PerUnit Pc "Primary frequency control power in per unit";
-      SI.PerUnit Pe "Electrical power output";
-      SI.Angle theta(start = 0, fixed = true) "Machine angle relative to port.theta";
-      SI.PerUnit omega(start = 1, fixed = true) "Per unit angular speed";
+     model Generator "Idealized synchronous generator with ideal voltage control and basic primary frequency control"
+       parameter SI.PerUnit V = 1 "Fixed rotor per unit voltage magnitude";
+       parameter SI.Time Ta = 10 "Acceleration time of turbogenerator Ta = J*omega^2/Pnom";
+       parameter SI.PerUnit droop = 0.05 "Droop coefficient of primary frequency control";
+       parameter Integer p = 0 "Potential root node priority";
+       ACPort port;
+       SI.PerUnit Ps = 1 "Active power output set point";
+       SI.PerUnit Pc "Primary frequency control power in per unit";
+       SI.PerUnit Pe "Electrical power output";
+       SI.Angle theta(start = 0, fixed = true) "Machine angle relative to port.theta";
+       SI.PerUnit omega(start = 1, fixed = true) "Per unit angular speed";
     equation
-      der(theta) = (omega - port.omegaRef)*omega_n;
-      Ta*omega*der(omega) = Ps + Pc - Pe;
-      port.v = CM.fromPolar(V, theta);
-      Pe = -CM.real(port.v*CM.conj(port.i));
-      Pc = -(omega-1)/droop;
-      Connections.potentialRoot(port.omegaRef);
-      if Connections.isRoot(port.omegaRef) then
-        port.omegaRef = omega;
-      end if;
+       der(theta) = (omega - port.omegaRef)*omega_n;
+       Ta*omega*der(omega) = Ps + Pc - Pe;
+       port.v = CM.fromPolar(V, theta);
+       Pe = -CM.real(port.v*CM.conj(port.i));
+       Pc = -(omega-1)/droop;
+       // Connections.potentialRoot(port.omegaRef,p);
+       Connections.potentialRoot(port.omegaRef);
+       if Connections.isRoot(port.omegaRef) then
+         port.omegaRef = omega;
+       end if;
     end Generator;
     
     model System1 "Two generators, one line, fixed branches"
@@ -145,6 +147,35 @@ package DynamicOverconstrainedConnectors
         redeclare TransmissionLineVariableBranch T2(B = -10.0, open = if time < 10 then false else true));
     annotation(experiment(StopTime = 50, Interval = 0.02));
     end System4;
+    
+    model System5 "Two generators, two parallel (one with breaker) and one series, fixed branches"
+      extends System2(T1b(open = if time < 10 then false else true));
+    annotation(experiment(StopTime = 50, Interval = 0.02));
+    end System5;
+    
+    model System6 "Two generators, two-parallel and one series line with breaker, dynamic branches"
+      extends System5(
+        redeclare TransmissionLineVariableBranch T1b(B = -5.0, open = if time < 10 then false else true));
+    annotation(experiment(StopTime = 50, Interval = 0.02));
+    end System6;
+    
+    model System7 "Three generators, two-parallel and two series lines with breaker, fixed branches"
+      extends System3(G2(p = 1));
+      Generator G3(Ta = 15);
+      Load L3(P = 1);
+      TransmissionLine T3;
+    equation
+      connect(G3.port, L3.port);
+      connect(G3.port, T3.port_b);
+      connect(G2.port, T3.port_a);
+    annotation(experiment(StopTime = 50, Interval = 0.02));
+    end System7;
+    
+    model System8 "Three generators, two-parallel and two series lines with breaker dynamic branches"
+      extends System7(
+        redeclare TransmissionLineVariableBranch T2(B = -10.0, open = if time < 10 then false else true));
+    annotation(experiment(StopTime = 50, Interval = 0.02));
+    end System8;
   end PowerGridsComplex;
 
   package PowerGridsReal "Power grid models using real variables"
@@ -236,6 +267,7 @@ package DynamicOverconstrainedConnectors
       parameter SI.PerUnit V = 1 "Fixed rotor per unit voltage magnitude";
       parameter SI.Time Ta = 10 "Acceleration time of turbogenerator Ta = J*omega^2/Pnom";
       parameter SI.PerUnit droop = 0.05 "Droop coefficient of primary frequency control";
+      parameter Integer p = 0 "Potential root node priority";
       ACPort port;
       SI.PerUnit Ps = 1 "Active power output set point";
       SI.PerUnit Pc "Primary frequency control power in per unit";
@@ -249,6 +281,7 @@ package DynamicOverconstrainedConnectors
       port.v_im = V*sin(theta);
       Pe = -(port.v_re*port.i_re + port.v_im*port.i_im);
       Pc = -(omega-1)/droop;
+      // Connections.potentialRoot(port.omegaRef,p);
       Connections.potentialRoot(port.omegaRef);
       if Connections.isRoot(port.omegaRef) then
         port.omegaRef = omega;
@@ -299,6 +332,35 @@ package DynamicOverconstrainedConnectors
         redeclare TransmissionLineVariableBranch T2(B = -10.0, open = if time < 10 then false else true));
     annotation(experiment(StopTime = 50, Interval = 0.02));
     end System4;
+    
+    model System5 "Two generators, two parallel (one with breaker) and one series, fixed branches"
+      extends System2(T1b(open = if time < 10 then false else true));
+    annotation(experiment(StopTime = 50, Interval = 0.02));
+    end System5;
+    
+    model System6 "Two generators, two-parallel and one series line with breaker, dynamic branches"
+      extends System5(
+        redeclare TransmissionLineVariableBranch T1b(B = -5.0, open = if time < 10 then false else true));
+    annotation(experiment(StopTime = 50, Interval = 0.02));
+    end System6;
+    
+    model System7 "Three generators, two-parallel and two series lines with breaker, fixed branches"
+      extends System3(G2(p = 1));
+      Generator G3(Ta = 15);
+      Load L3(P = 1);
+      TransmissionLine T3;
+    equation
+      connect(G3.port, L3.port);
+      connect(G3.port, T3.port_b);
+      connect(G2.port, T3.port_a);
+    annotation(experiment(StopTime = 50, Interval = 0.02));
+    end System7;
+    
+    model System8 "Three generators, two-parallel and two series lines with breaker dynamic branches"
+      extends System7(
+        redeclare TransmissionLineVariableBranch T2(B = -10.0, open = if time < 10 then false else true));
+    annotation(experiment(StopTime = 50, Interval = 0.02));
+    end System8;
   end PowerGridsReal;
 
 annotation(uses(Modelica(version="4.0.0")));
