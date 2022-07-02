@@ -37,8 +37,8 @@ package DynamicOverconstrainedConnectors
     equation
       port.v*CM.conj(port.i) = Complex(P,Q);
     end Load;
-    
-    model TransmissionLine "Purely inductive transmission line model"
+
+    partial model TransmissionLineBase "Purely inductive transmission line - base model"
       parameter SI.PerUnit B = -5.0 "Line series per unit susceptance";
       discrete SI.PerUnit B_act "Actual value of per unit susceptance including breaker status";
       Boolean closed "State of line breaker";
@@ -59,33 +59,20 @@ package DynamicOverconstrainedConnectors
         closed = true;
         B_act = B;
       end when;
+    end TransmissionLineBase;
+    
+    model TransmissionLine "Purely inductive transmission line model - static overconstrained connector version"
+      extends TransmissionLineBase;
+    equation
       port_a.omegaRef = port_b.omegaRef;
       Connections.branch(port_a.omegaRef, port_b.omegaRef);
     end TransmissionLine;
-    
+
     model TransmissionLineVariableBranch "Purely inductive transmission line model with time-varying connection branch"
-      parameter SI.PerUnit B = -5.0 "Line series per unit susceptance";
-      discrete SI.PerUnit B_act "Actual value of per unit susceptance including breaker status";
-      Boolean closed "State of line breaker";
-      Boolean open = false "Command to open the line breaker";
-      Boolean close = false "Command to close the line breaker";
-      ACPort port_a;
-      ACPort port_b;
-    initial equation
-      closed = true;
-      B_act = B;
+      extends TransmissionLineBase;
     equation
-      port_a.i + port_b.i = Complex(0);
-      port_a.i = Complex(0,B_act)*(port_a.v - port_b.v);
-      when open then
-        closed = false;
-        B_act = 0;
-      elsewhen close then
-        closed = true;
-        B_act = B;
-      end when;
-      // This if-equation is not valid according to Modelica 3.5
-      // Section 8.3.4 but it would according to this extension proposal
+  // This if-equation is not valid according to Modelica 3.5
+  // Section 8.3.4 but it would according to this extension proposal
       if closed then
         port_a.omegaRef = port_b.omegaRef;
         Connections.branch(port_a.omegaRef, port_b.omegaRef);
@@ -135,7 +122,8 @@ package DynamicOverconstrainedConnectors
       Load L2(P = if time < 1 then 1 else 0.8);
       TransmissionLine T1a(B = -5.0);
       TransmissionLine T1b(B = -5.0);
-      TransmissionLine T2(B = -10.0);
+      replaceable TransmissionLine T2(B = -10.0)
+        constrainedby TransmissionLineBase;
     equation
       connect(G1.port, L1.port);
       connect(G2.port, L2.port);
@@ -148,40 +136,13 @@ package DynamicOverconstrainedConnectors
     end System2;
     
     model System3 "Two generators, two-parallel and one series line with breaker, fixed branches"
-      Generator G1;
-      Generator G2;
-      Load L1(P = 1);
-      Load L2(P = if time < 1 then 1 else 0.8);
-      TransmissionLine T1a(B = -5.0);
-      TransmissionLine T1b(B = -5.0);
-      TransmissionLine T2(B = -10.0, open = if time < 10 then false else true);
-    equation
-      connect(G1.port, L1.port);
-      connect(G2.port, L2.port);
-      connect(G1.port, T1a.port_a);
-      connect(G1.port, T1b.port_a);
-      connect(T1a.port_b, T2.port_a);
-      connect(T1b.port_b, T2.port_a);
-      connect(G2.port, T2.port_b);
+      extends System2(T2(open = if time < 10 then false else true));
     annotation(experiment(StopTime = 50, Interval = 0.02));
     end System3;
     
     model System4 "Two generators, two-parallel and one series line with breaker, dynamic branches"
-      Generator G1;
-      Generator G2;
-      Load L1(P = 1);
-      Load L2(P = if time < 1 then 1 else 0.8);
-      TransmissionLine T1a(B = -5.0);
-      TransmissionLine T1b(B = -5.0);
-      TransmissionLineVariableBranch T2(B = -10.0, open = if time < 10 then false else true);
-    equation
-      connect(G1.port, L1.port);
-      connect(G2.port, L2.port);
-      connect(G1.port, T1a.port_a);
-      connect(G1.port, T1b.port_a);
-      connect(T1a.port_b, T2.port_a);
-      connect(T1b.port_b, T2.port_a);
-      connect(G2.port, T2.port_b);
+      extends System3(
+        redeclare TransmissionLineVariableBranch T2(B = -10.0, open = if time < 10 then false else true));
     annotation(experiment(StopTime = 50, Interval = 0.02));
     end System4;
   end PowerGridsComplex;
@@ -227,8 +188,8 @@ package DynamicOverconstrainedConnectors
        port.v_re*port.i_re + port.v_im*port.i_im = P;
       -port.v_re*port.i_im + port.v_im*port.i_re = Q;
     end Load;
-    
-    model TransmissionLine "Purely inductive transmission line model"
+
+    partial model TransmissionLineBase "Purely inductive transmission line - base model"
       parameter SI.PerUnit B = -5.0 "Line series per unit susceptance";
       discrete SI.PerUnit B_act "Actual value of per unit susceptance including breaker status";
       Boolean closed "State of line breaker";
@@ -251,35 +212,20 @@ package DynamicOverconstrainedConnectors
         closed = true;
         B_act = B;
       end when;
+    end TransmissionLineBase;
+    
+    model TransmissionLine "Purely inductive transmission line model"
+      extends TransmissionLineBase;
+    equation
       port_a.omegaRef = port_b.omegaRef;
       Connections.branch(port_a.omegaRef, port_b.omegaRef);
     end TransmissionLine;
     
     model TransmissionLineVariableBranch "Purely inductive transmission line model with time-varying connection branch"
-      parameter SI.PerUnit B = -5.0 "Line series per unit susceptance";
-      discrete SI.PerUnit B_act "Actual value of per unit susceptance including breaker status";
-      Boolean closed "State of line breaker";
-      Boolean open = false "Command to open the line breaker";
-      Boolean close = false "Command to close the line breaker";
-      ACPort port_a;
-      ACPort port_b;
-    initial equation
-      closed = true;
-      B_act = B;
+    extends TransmissionLineBase;
     equation
-      port_a.i_re + port_b.i.re = 0;
-      port_a.i_im + port_b.i.im = 0;
-      port_a.i_re = -B_act*(port_a.v_im - port_b.v_im);
-      port_a.i_im =  B_act*(port_a.v_re - port_b.v_re);
-      when open then
-        closed = false;
-        B_act = 0;
-      elsewhen close then
-        closed = true;
-        B_act = B;
-      end when;
       // This if-equation is not valid according to Modelica 3.5
-      // Section 8.3.4 but it would according to this extension proposal
+    // Section 8.3.4 but it would according to this extension proposal
       if closed then
         port_a.omegaRef = port_b.omegaRef;
         Connections.branch(port_a.omegaRef, port_b.omegaRef);
@@ -330,7 +276,8 @@ package DynamicOverconstrainedConnectors
       Load L2(P = if time < 1 then 1 else 0.8);
       TransmissionLine T1a(B = -5.0);
       TransmissionLine T1b(B = -5.0);
-      TransmissionLine T2(B = -10.0);
+      replaceable TransmissionLine T2(B = -10.0)
+        constrainedby TransmissionLineBase;
     equation
       connect(G1.port, L1.port);
       connect(G2.port, L2.port);
@@ -343,42 +290,16 @@ package DynamicOverconstrainedConnectors
     end System2;
     
     model System3 "Two generators, two-parallel and one series line with breaker, fixed branches"
-      Generator G1;
-      Generator G2;
-      Load L1(P = 1);
-      Load L2(P = if time < 1 then 1 else 0.8);
-      TransmissionLine T1a(B = -5.0);
-      TransmissionLine T1b(B = -5.0);
-      TransmissionLine T2(B = -10.0, open = if time < 10 then false else true);
-    equation
-      connect(G1.port, L1.port);
-      connect(G2.port, L2.port);
-      connect(G1.port, T1a.port_a);
-      connect(G1.port, T1b.port_a);
-      connect(T1a.port_b, T2.port_a);
-      connect(T1b.port_b, T2.port_a);
-      connect(G2.port, T2.port_b);
+      extends System2(T2(open = if time < 10 then false else true));
     annotation(experiment(StopTime = 50, Interval = 0.02));
     end System3;
     
-    model System4 "Two generators, two-parallel and one series line with breaker, fixed branches"
-      Generator G1;
-      Generator G2;
-      Load L1(P = 1);
-      Load L2(P = if time < 1 then 1 else 0.8);
-      TransmissionLine T1a(B = -5.0);
-      TransmissionLine T1b(B = -5.0);
-      TransmissionLineVariableBranch T2(B = -10.0, open = if time < 10 then false else true);
-    equation
-      connect(G1.port, L1.port);
-      connect(G2.port, L2.port);
-      connect(G1.port, T1a.port_a);
-      connect(G1.port, T1b.port_a);
-      connect(T1a.port_b, T2.port_a);
-      connect(T1b.port_b, T2.port_a);
-      connect(G2.port, T2.port_b);
+    model System4 "Two generators, two-parallel and one series line with breaker, dynamic branches"
+      extends System3(
+        redeclare TransmissionLineVariableBranch T2(B = -10.0, open = if time < 10 then false else true));
     annotation(experiment(StopTime = 50, Interval = 0.02));
     end System4;
   end PowerGridsReal;
+
 annotation(uses(Modelica(version="4.0.0")));
 end DynamicOverconstrainedConnectors;
