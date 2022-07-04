@@ -1,6 +1,6 @@
 package DynamicOverconstrainedConnectors
   package PowerGridsComplex "Power grid models using complex records"
-    import SI = Modelica.Units.SI;
+    import SI = Modelica.SIunits;
     import CM = Modelica.ComplexMath;
     constant SI.Frequency f_n = 50 "Nominal grid frequency";
     constant SI.PerUnit pi = Modelica.Constants.pi;
@@ -363,5 +363,5 @@ package DynamicOverconstrainedConnectors
     end System8;
   end PowerGridsReal;
 
-annotation(uses(Modelica(version="4.0.0")));
+annotation(uses(Modelica(version="3.2.3")));
 end DynamicOverconstrainedConnectors;
