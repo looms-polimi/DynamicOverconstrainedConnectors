@@ -231,7 +231,7 @@ package DynamicOverconstrainedConnectors
   end PowerGridsComplex;
 
   package PowerGridsReal "Power grid models using real variables"
-    import SI = Modelica.Units.SI;
+    import SI = Modelica.SIunits;
     import CM = Modelica.ComplexMath;
     constant SI.Frequency f_n = 50 "Nominal grid frequency";
     constant SI.PerUnit pi = Modelica.Constants.pi;
