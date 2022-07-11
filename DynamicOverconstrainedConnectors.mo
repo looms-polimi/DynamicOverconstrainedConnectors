@@ -25,18 +25,43 @@ package DynamicOverconstrainedConnectors
     end ReferenceAngularSpeed;
     
     connector ACPort "Port for per unit 3-phase AC systems"
-      SI.ComplexPerUnit v "Per unit voltage phasor referred to phase";
+      SI.ComplexPerUnit v(re(start = 1)) "Per unit voltage phasor referred to phase";
       flow SI.ComplexPerUnit i "Per unit current phasor referred to phase";
       ReferenceAngularSpeed omegaRef "Reference per-unit angular speed";
     end ACPort;
-  
-    model Load "AC load model"
+    
+    model LoadBase "Base class for AC load models"
       ACPort port;
       SI.PerUnit P = 0 "Active per unit power";
       Real Q = 0 "Reactive per unit power";
+    end LoadBase;
+  
+    model Load "AC load model"
+      extends LoadBase;
     equation
       port.v*CM.conj(port.i) = Complex(P,Q);
     end Load;
+
+    model LoadVariableRoot "AC load model with provision for unsupplied sub-networks"
+      extends LoadBase;
+    equation
+      if port.omegaRef > 0 then 
+        // the load is connected to a synchronous island with a generator as a root node
+        port.v*CM.conj(port.i) = Complex(P,Q);
+      elseif Connections.isRoot(port.omegaRef) then
+        // the load is the root node of an island without any generator root node
+        port.v = Complex(0);
+      else
+        // the load is connected to an island that doesn't have any generator, but is not the root node
+        port.i = Complex(0);
+      end if;
+      // Very high priority number, gets selected only if there are no generators in the sub-graph
+      Connections.potentialRoot(port.omegaRef, 10000);
+      // Set omegaRef = 0 if the load is selected as root node, hence there are no generators in the sub-graph
+      if Connections.isRoot(port.omegaRef) then
+        port.omegaRef = 0;
+      end if;
+    end LoadVariableRoot;
 
     partial model TransmissionLineBase "Purely inductive transmission line - base model"
       parameter SI.PerUnit B = -5.0 "Line series per unit susceptance";
@@ -176,6 +201,33 @@ package DynamicOverconstrainedConnectors
         redeclare TransmissionLineVariableBranch T2(B = -10.0, open = if time < 10 then false else true));
     annotation(experiment(StopTime = 50, Interval = 0.02));
     end System8;
+    
+    model System9 "System with loads that can get disconnected"
+      Generator G1;
+      Load L1(P = 0.8);
+      replaceable Load L2(P = 0.1)
+        constrainedby LoadBase;
+      replaceable Load L3(P = 0.1)
+        constrainedby LoadBase;
+      replaceable TransmissionLine T1(open = if time < 10 then false else true)
+        constrainedby TransmissionLineBase;
+      TransmissionLine T2;
+    equation
+      connect(G1.port, L1.port);
+      connect(G1.port, T1.port_a);
+      connect(T1.port_b, L2.port);
+      connect(T1.port_b, T2.port_a);
+      connect(T2.port_b, L3.port);
+    annotation(experiment(StopTime = 50, Interval = 0.02));
+    end System9;
+    
+    model System10 "System with loads that can get disconnected, using dynamic overconstrained connectors"
+      extends System9(
+        redeclare LoadVariableRoot L2(P = 0.1),
+        redeclare LoadVariableRoot L3(P = 0.1),
+        redeclare TransmissionLineVariableBranch T1(open = if time < 0 then false else true));
+    annotation(experiment(StopTime = 50, Interval = 0.02));
+    end System10;
   end PowerGridsComplex;
 
   package PowerGridsReal "Power grid models using real variables"
@@ -204,7 +256,7 @@ package DynamicOverconstrainedConnectors
     end ReferenceAngularSpeed;
     
     connector ACPort "Port for per unit 3-phase AC systems"
-      SI.PerUnit v_re "Per unit voltage phasor referred to phase, real part";
+      SI.PerUnit v_re(start = 1) "Per unit voltage phasor referred to phase, real part";
       SI.PerUnit v_im "Per unit voltage phasor referred to phase, imaginary part";
       flow SI.PerUnit i_re "Per unit current phasor referred to phase, real part";
       flow SI.PerUnit i_im "Per unit current phasor referred to phase, imaginary part";
