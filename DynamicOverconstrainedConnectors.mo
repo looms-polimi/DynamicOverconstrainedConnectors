@@ -121,8 +121,7 @@ package DynamicOverconstrainedConnectors
        port.v = CM.fromPolar(V, theta);
        Pe = -CM.real(port.v*CM.conj(port.i));
        Pc = -(omega-1)/droop;
-// Connections.potentialRoot(port.omegaRef,p);
-       Connections.potentialRoot(port.omegaRef);
+  Connections.potentialRoot(port.omegaRef,p);
        if Connections.isRoot(port.omegaRef) then
          port.omegaRef = omega;
        end if;
@@ -361,8 +360,7 @@ package DynamicOverconstrainedConnectors
       port.v_im = V*sin(theta);
       Pe = -(port.v_re*port.i_re + port.v_im*port.i_im);
       Pc = -(omega-1)/droop;
-// Connections.potentialRoot(port.omegaRef,p);
-      Connections.potentialRoot(port.omegaRef);
+  Connections.potentialRoot(port.omegaRef,p);
       if Connections.isRoot(port.omegaRef) then
         port.omegaRef = omega;
       end if;
@@ -573,9 +571,7 @@ package DynamicOverconstrainedConnectors
       FluidPort inlet;
   
     equation    
-      // Needs #9216 to be fixed
-      // Connections.potentialRoot(inlet.id, priority);
-      Connections.potentialRoot(inlet.id);
+      Connections.potentialRoot(inlet.id, priority);
       // If the tank is selected as root node, it determines the circuit pressure and id
       // otherwise it behaves like a plug
       if Connections.isRoot(inlet.id) then
