@@ -481,11 +481,13 @@ package DynamicOverconstrainedConnectors
     
     model System1 "Simple loop for testing"
       Pump pump(n = if time < 1 then 1 else 0.8);
+      Valve valve(w0 = 1, dp0 = 1e4);
       Pipe pipe1(w0 = 1, dp0 = 5e4);
       Pipe pipe2(w0 = 1, dp0 = 5e4);
       ExpansionTank tank;
     equation
-      connect(pump.outlet, pipe1.inlet);
+      connect(pump.outlet, valve.inlet);
+      connect(valve.outlet, pipe1.inlet);
       connect(pipe1.outlet, pipe2.inlet);
       connect(pipe2.outlet, pump.inlet);
       connect(tank.inlet, pump.inlet);
