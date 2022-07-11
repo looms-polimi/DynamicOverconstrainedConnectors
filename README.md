@@ -4,6 +4,8 @@ Test cases for the proposed extension of overconstrained connectors in Modelica
 The DynamicOverconstrainedConnectors package contains three sets of test cases for the proposed extension of the overconstrained connector semantics in Modelica,
 that allows to change the network topology at runtime. The proposal is described in OpenModelica ticket OpenModelica/OpenModelica#6240.
 
+## Case 1: Electro-mechanical power grid simulation with complex phasors
+
 The first set of test cases is found in the **PowerGridsComplex** sub-package. The models in there are minimimalistic versions of electro-mechanical power grids, with
 radical simplifying assumptions that reduce the complexity of the models, while retaining the relevant aspects for this proposal. The main simplifying assumptions are:
 - purely inductive transmission lines
@@ -28,7 +30,11 @@ step-size solvers from increasing the step size once the new frequency steady-st
 
 **System8** is like System7, except that the extended line breaker is used for T2. In this case, G1.port should be selected as root node for the first connected sub-graph, while G3.port should be selected as root node for the second sub-graph, since it has lower priority number than G2. Also in this case, once both islands have reached steady-state, the phasors become constant allowing longer time steps; the physical transents of the generator frequencies G1.omega, G2.omega and G3.omega, as well as the powers Pe and Ps in the three generators, should be exactly the same as in System7.
 
+## Case 2: Electro-mechanical power grid simulation with real number representation of complex phasors
+
 The second set of test cases is found in the **PowerGridsReal** sub-package. The models found here are identical to the models in PowerGridsComplex, except they are written with Real numbers only and explicit equations for the real and imaginary part of complex phasor equations, without using Complex operator records. This can be handy in experimental Modelica environments that do not support them.
+
+## Case 3: Incompressible fluid networks
 
 The third set of test cases is found in the **IncompressibleFluid** sub-package. In this case, dynamic overconstrained connectors are used to handle incompressible fluid networks.
 
