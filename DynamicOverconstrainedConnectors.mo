@@ -410,21 +410,23 @@ package DynamicOverconstrainedConnectors
       
       parameter SI.Pressure dp0 = 1e4;
       parameter SI.MassFlowRate w0 = 1;
+      final parameter Real Kv0 = w0/dp0;
       
-      Real Kv "Flow coefficient";
+      discrete Real Kv "Flow coefficient";
       Boolean closed "State of line breaker";
       Boolean open = false "Command to open the line breaker";
       Boolean close = false "Command to close the line breaker";
     initial equation
       closed = false;
-      Kv = w0/dp0;
+      Kv = Kv0;
     equation
       w = Kv*dp;
       when open then
         closed = false;
-        Kv = 0;
+        Kv = Kv0;
       elsewhen close then
-        Kv = w0/dp0;
+        closed = true;
+        Kv = 0;
       end when;
       dp = inlet.p - outlet.p;
     end BaseValve;
@@ -489,6 +491,52 @@ package DynamicOverconstrainedConnectors
       connect(tank.inlet, pump.inlet);
     annotation(experiment(StopTime = 2, Interval = 0.02));
     end System1;
+    
+    model System2 "Simple loop for testing"
+      Pump pumpA(n = if time < 1 then 1 else 0.8);
+      Pipe pipe1A(w0 = 1, dp0 = 3e4);
+      Pipe pipe2A(w0 = 1, dp0 = 3e4);
+      Pipe pipe3A(w0 = 1, dp0 = 3e4);
+      Pump pumpB;
+      Pipe pipe1B(w0 = 1, dp0 = 3e4);
+      Pipe pipe2B(w0 = 1, dp0 = 3e4);
+      Pipe pipe3B(w0 = 1, dp0 = 3e4);
+      replaceable Valve valveAB(close = if time < 2 then false else true)
+        constrainedby BaseValve;
+      replaceable Valve valveBA(close = if time < 4 then false else true)
+        constrainedby BaseValve;
+      ExpansionTank tankA(id = 1, p0 = 2e5);
+      ExpansionTank tankB(id = 2, p0 = 2e5);
+    equation
+      connect(pumpA.outlet, pipe1A.inlet);
+      connect(pipe1A.outlet, pipe2A.inlet);
+      connect(pipe2A.outlet, pipe3A.outlet);
+      connect(pipe3A.outlet, pumpA.inlet);
+      connect(tankA.inlet, pumpA.inlet);
+      connect(pumpB.outlet, pipe1B.inlet);
+      connect(pipe1B.outlet, pipe2B.inlet);
+      connect(pipe2B.outlet, pipe3B.outlet);
+      connect(pipe3B.outlet, pumpB.inlet);
+      connect(tankB.inlet, pumpB.inlet);
+      connect(valveAB.inlet, pipe2A.inlet);
+      connect(valveAB.outlet, pipe2B.inlet);
+      connect(valveBA.inlet, pipe2B.outlet);
+      connect(valveBA.outlet, pipe2A.outlet);
+    annotation(experiment(StopTime = 3, Interval = 0.02));
+    end System2;
+
+    
+
+    model System3
+      extends System2;
+annotation(experiment(StopTime = 5, Interval = 0.02));
+    end System3;
+    
+    model System4
+      extends System2(redeclare ValveDynamicBranch valveAB(close = if time < 2 then false else true),
+                      redeclare ValveDynamicBranch valveBA(close = if time < 4 then false else true));
+    annotation(experiment(StopTime = 5, Interval = 0.02));
+    end System4;
 
   /*  
     model System2 "Two generators, two-parallel and one series lines, fixed branches"
