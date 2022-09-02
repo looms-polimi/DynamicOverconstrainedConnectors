@@ -28,12 +28,17 @@ package DynamicOverconstrainedConnectors
       SI.ComplexPerUnit v(re(start = 1)) "Per unit voltage phasor referred to phase";
       flow SI.ComplexPerUnit i "Per unit current phasor referred to phase";
       ReferenceAngularSpeed omegaRef "Reference per-unit angular speed";
+    annotation(
+        Icon(coordinateSystem(extent = {{-100, -100}, {100, 100}}, preserveAspectRatio = true, initialScale = 1, grid = {2, 2}), graphics = {Rectangle(origin = {92, 3}, fillColor = {85, 170, 255}, fillPattern = FillPattern.Solid, extent = {{-192, 97}, {8, -103}})}));
     end ACPort;
     
     model LoadBase "Base class for AC load models"
-      ACPort port;
+      ACPort port annotation(
+        Placement(visible = true, transformation(origin = {-1.42109e-14, 98}, extent = {{-10, -10}, {10, 10}}, rotation = 0), iconTransformation(origin = {-1.42109e-14, 0}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
       SI.PerUnit P = 0 "Active per unit power";
       Real Q = 0 "Reactive per unit power";
+    annotation(
+        Icon(graphics = {Line(origin = {0, -20}, points = {{0, 20}, {0, -20}, {0, -20}}), Polygon(origin = {0, -70}, fillPattern = FillPattern.Solid, points = {{-40, 30}, {40, 30}, {0, -30}, {-40, 30}}), Text(origin = {-1, -120}, lineColor = {0, 0, 255}, extent = {{-81, 20}, {81, -20}}, textString = "%name")}, coordinateSystem(initialScale = 0.1)));
     end LoadBase;
   
     model Load "AC load model"
@@ -69,8 +74,10 @@ package DynamicOverconstrainedConnectors
       Boolean closed "State of line breaker";
       Boolean open = false "Command to open the line breaker";
       Boolean close = false "Command to close the line breaker";
-      ACPort port_a;
-      ACPort port_b;
+      ACPort port_a annotation(
+        Placement(visible = true, transformation(origin = {-100, 0}, extent = {{-10, -10}, {10, 10}}, rotation = 0), iconTransformation(origin = {-100, 0}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+      ACPort port_b annotation(
+        Placement(visible = true, transformation(origin = {100, 0}, extent = {{-10, -10}, {10, 10}}, rotation = 0), iconTransformation(origin = {100, 0}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
     initial equation
       closed = true;
       B_act = B;
@@ -84,6 +91,8 @@ package DynamicOverconstrainedConnectors
         closed = true;
         B_act = B;
       end when;
+    annotation(
+        Icon(graphics = {Rectangle(origin = {-1, -1}, fillColor = {255, 255, 255}, fillPattern = FillPattern.Solid, extent = {{-59, 11}, {61, -11}}), Line(origin = {-80, 0}, points = {{-20, 0}, {20, 0}}), Line(origin = {80, 0}, points = {{-20, 0}, {20, 0}}), Text(origin = {0, 40}, lineColor = {0, 0, 255}, extent = {{-80, 20}, {80, -20}}, textString = "%name")}, coordinateSystem(initialScale = 0.1)));
     end TransmissionLineBase;
     
     model TransmissionLine "Purely inductive transmission line model - static overconstrained connector version"
@@ -109,7 +118,8 @@ package DynamicOverconstrainedConnectors
        parameter SI.Time Ta = 10 "Acceleration time of turbogenerator Ta = J*omega^2/Pnom";
        parameter SI.PerUnit droop = 0.05 "Droop coefficient of primary frequency control";
        parameter Integer p = 0 "Potential root node priority";
-       ACPort port;
+       ACPort port annotation(
+         Placement(visible = true, transformation(origin = {-1.42109e-14, 98}, extent = {{-10, -10}, {10, 10}}, rotation = 0), iconTransformation(origin = {-1.42109e-14, 0}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
        SI.PerUnit Ps = 1 "Active power output set point";
        SI.PerUnit Pc "Primary frequency control power in per unit";
        SI.PerUnit Pe "Electrical power output";
@@ -125,40 +135,69 @@ package DynamicOverconstrainedConnectors
        if Connections.isRoot(port.omegaRef) then
          port.omegaRef = omega;
        end if;
-    end Generator;
+    annotation(
+         Icon(graphics = {Ellipse(origin = {0, -1}, extent = {{-60, 61}, {60, -59}}), Text(origin = {0, 80}, lineColor = {0, 0, 255}, extent = {{-80, 20}, {80, -20}}, textString = "%name")}, coordinateSystem(initialScale = 0.1)));
+     end Generator;
     
     model System1 "Two generators, one line, fixed branches"
-      Generator G1;
-      Generator G2;
-      Load L1(P = 1);
-      Load L2(P = if time < 1 then 1 else 0.8);
-      TransmissionLine T;
+      Generator G1 annotation(
+        Placement(visible = true, transformation(origin = {-20, 0}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+      Generator G2 annotation(
+        Placement(visible = true, transformation(origin = {20, 0}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+      Load L1(P = 1) annotation(
+        Placement(visible = true, transformation(origin = {-20, -10}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+      Load L2(P = if time < 1 then 1 else 0.8) annotation(
+        Placement(visible = true, transformation(origin = {20, -10}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+      TransmissionLine T annotation(
+        Placement(visible = true, transformation(origin = {0, 0}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
     equation
-      connect(G1.port, L1.port);
-      connect(G2.port, L2.port);
-      connect(G1.port, T.port_a);
-      connect(G2.port, T.port_b);
-    annotation(experiment(StopTime = 50, Interval = 0.02));
+      connect(G1.port, L1.port) annotation(
+        Line(points = {{-20, 0}, {-20, -10}}));
+      connect(G2.port, L2.port) annotation(
+        Line(points = {{20, 0}, {20, -10}}));
+      connect(G1.port, T.port_a) annotation(
+        Line(points = {{-20, 0}, {-10, 0}}));
+      connect(G2.port, T.port_b) annotation(
+        Line(points = {{20, 0}, {10, 0}}));
+    annotation(experiment(StopTime = 50, Interval = 0.02),
+  Diagram(coordinateSystem(extent = {{-40, -25}, {40, 15}})),
+  Icon(coordinateSystem(extent = {{-40, -25}, {40, 15}})));
     end System1;
     
     model System2 "Two generators, two-parallel and one series lines, fixed branches"
-      Generator G1;
-      Generator G2;
-      Load L1(P = 1);
-      Load L2(P = if time < 1 then 1 else 0.8);
-      TransmissionLine T1a(B = -5.0);
-      TransmissionLine T1b(B = -5.0);
-      replaceable TransmissionLine T2(B = -10.0)
-        constrainedby TransmissionLineBase;
+      Generator G1 annotation(
+        Placement(visible = true, transformation(origin = {-40, 0}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+      Generator G2 annotation(
+        Placement(visible = true, transformation(origin = {40, 0}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+      Load L1(P = 1)  annotation(
+        Placement(visible = true, transformation(origin = {-40, -10}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+      Load L2(P = if time < 1 then 1 else 0.8) annotation(
+        Placement(visible = true, transformation(origin = {40, -10}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+      TransmissionLine T1a(B = -5.0) annotation(
+        Placement(visible = true, transformation(origin = {-14, 6}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+      TransmissionLine T1b(B = -5.0) annotation(
+        Placement(visible = true, transformation(origin = {-14, -6}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+      replaceable TransmissionLine T2(B = -10.0) annotation(
+        Placement(visible = true, transformation(origin = {16, 0}, extent = {{-10, -10}, {10, 10}}, rotation = 0)))constrainedby TransmissionLineBase annotation(
+        Placement(visible = true, transformation(origin = {0, 0}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
     equation
-      connect(G1.port, L1.port);
-      connect(G2.port, L2.port);
-      connect(G1.port, T1a.port_a);
-      connect(G1.port, T1b.port_a);
-      connect(T1a.port_b, T2.port_a);
-      connect(T1b.port_b, T2.port_a);
-      connect(G2.port, T2.port_b);
-    annotation(experiment(StopTime = 50, Interval = 0.02));
+      connect(G1.port, L1.port) annotation(
+        Line(points = {{-40, 0}, {-40, -10}}));
+      connect(G2.port, L2.port) annotation(
+        Line(points = {{40, 0}, {40, -10}}));
+      connect(G1.port, T1a.port_a) annotation(
+        Line(points = {{-40, 0}, {-30, 0}, {-30, 6}, {-24, 6}}));
+      connect(G1.port, T1b.port_a) annotation(
+        Line(points = {{-40, 0}, {-30, 0}, {-30, -6}, {-24, -6}}));
+      connect(T1a.port_b, T2.port_a) annotation(
+        Line(points = {{-4, 6}, {2, 6}, {2, 0}, {6, 0}}));
+      connect(T1b.port_b, T2.port_a) annotation(
+        Line(points = {{-4, -6}, {2, -6}, {2, 0}, {6, 0}}));
+      connect(G2.port, T2.port_b) annotation(
+        Line(points = {{26, 0}, {40, 0}}));
+    annotation(experiment(StopTime = 50, Interval = 0.02),
+  Diagram(coordinateSystem(extent = {{-50, -25}, {50, 15}})),
+  Icon(coordinateSystem(extent = {{-50, -25}, {50, 15}})));
     end System2;
     
     model System3 "Two generators, two-parallel and one series line with breaker, fixed branches"
@@ -202,22 +241,35 @@ package DynamicOverconstrainedConnectors
     end System8;
     
     model System9 "System with loads that can get disconnected"
-      Generator G1;
-      Load L1(P = 0.8);
-      replaceable Load L2(P = 0.1)
+      Generator G1  annotation(
+        Placement(visible = true, transformation(origin = {-20, 0}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+      Load L1(P = 0.8) annotation(
+        Placement(visible = true, transformation(origin = {-20, -10}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+      replaceable Load L2(P = 0.1) annotation(
+        Placement(visible = true, transformation(origin = {10, -10}, extent = {{-10, -10}, {10, 10}}, rotation = 0)))
         constrainedby LoadBase;
-      replaceable Load L3(P = 0.1)
+      replaceable Load L3(P = 0.1) annotation(
+        Placement(visible = true, transformation(origin = {36, -10}, extent = {{-10, -10}, {10, 10}}, rotation = 0)))
         constrainedby LoadBase;
       replaceable TransmissionLine T1(open = if time < 10 then false else true)
-        constrainedby TransmissionLineBase;
-      TransmissionLine T2;
+        constrainedby TransmissionLineBase  annotation(
+        Placement(visible = true, transformation(origin = {0, 0}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+      TransmissionLine T2 annotation(
+        Placement(visible = true, transformation(origin = {26, 0}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
     equation
-      connect(G1.port, L1.port);
-      connect(G1.port, T1.port_a);
-      connect(T1.port_b, L2.port);
-      connect(T1.port_b, T2.port_a);
-      connect(T2.port_b, L3.port);
-    annotation(experiment(StopTime = 50, Interval = 0.02));
+      connect(G1.port, L1.port) annotation(
+        Line(points = {{-20, 0}, {-20, -10}}));
+      connect(G1.port, T1.port_a) annotation(
+        Line(points = {{-20, 0}, {-10, 0}}));
+      connect(T1.port_b, L2.port) annotation(
+        Line(points = {{10, 0}, {10, -10}}));
+      connect(T1.port_b, T2.port_a) annotation(
+        Line(points = {{10, 0}, {16, 0}}));
+      connect(T2.port_b, L3.port) annotation(
+        Line(points = {{36, 0}, {36, -10}}));
+    annotation(experiment(StopTime = 50, Interval = 0.02),
+    Diagram(coordinateSystem(extent = {{-40, -25}, {60, 15}})),
+    Icon(coordinateSystem(extent = {{-40, -25}, {60, 15}})));
     end System9;
     
     model System10 "System with loads that can get disconnected, using dynamic overconstrained connectors"
