@@ -541,6 +541,25 @@ package DynamicOverconstrainedConnectors
       connect(T2.port_b, L3.port);
     annotation(experiment(StopTime = 50, Interval = 0.02));
     end System9;
+
+  model System99 "System with loads that can get disconnected"
+      Generator G1;
+      Load L1(P = 0.8);
+      replaceable LoadVariableRoot L2(P = 0.1)
+        constrainedby LoadBase;
+      replaceable LoadVariableRoot L3(P = 0.1)
+        constrainedby LoadBase;
+      replaceable TransmissionLine T1(open = if time < 10 then false else true)
+        constrainedby TransmissionLineBase;
+      TransmissionLine T2;
+    equation
+      connect(G1.port, L1.port);
+      connect(G1.port, T1.port_a);
+      connect(T1.port_b, L2.port);
+      connect(T1.port_b, T2.port_a);
+      connect(T2.port_b, L3.port);
+    annotation(experiment(StopTime = 50, Interval = 0.02));
+    end System99;
     
     model System10 "System with loads that can get disconnected, using dynamic overconstrained connectors"
       extends System9(
@@ -657,7 +676,7 @@ package DynamicOverconstrainedConnectors
     end Pipe;
   
     model ExpansionTank "Ideal expansion tank, fixes the pressure of the circuit it is attached to"
-      parameter SI.Pressure p0 "Fixed pressure";
+      parameter SI.Pressure p0 = 0.0 "Fixed pressure";
       parameter Integer id = 0 "Circuit id";
       parameter Integer priority = 0 "Priority for selection as root node";
   
@@ -776,67 +795,6 @@ annotation(experiment(StopTime = 5, Interval = 0.02));
     annotation(experiment(StopTime = 5, Interval = 0.02));
     end System4;
 
-  /*  
-    model System2 "Two generators, two-parallel and one series lines, fixed branches"
-      Generator G1;
-      Generator G2;
-      Load L1(P = 1);
-      Load L2(P = if time < 1 then 1 else 0.8);
-      TransmissionLine T1a(B = -5.0);
-      TransmissionLine T1b(B = -5.0);
-      replaceable TransmissionLine T2(B = -10.0)
-        constrainedby TransmissionLineBase;
-    equation
-      connect(G1.port, L1.port);
-      connect(G2.port, L2.port);
-      connect(G1.port, T1a.port_a);
-      connect(G1.port, T1b.port_a);
-      connect(T1a.port_b, T2.port_a);
-      connect(T1b.port_b, T2.port_a);
-      connect(G2.port, T2.port_b);
-    annotation(experiment(StopTime = 50, Interval = 0.02));
-    end System2;
-    
-    model System3 "Two generators, two-parallel and one series line with breaker, fixed branches"
-      extends System2(T2(open = if time < 10 then false else true));
-    annotation(experiment(StopTime = 50, Interval = 0.02));
-    end System3;
-    
-    model System4 "Two generators, two-parallel and one series line with breaker, dynamic branches"
-      extends System3(
-        redeclare TransmissionLineDynamicBranch T2(B = -10.0, open = if time < 10 then false else true));
-    annotation(experiment(StopTime = 50, Interval = 0.02));
-    end System4;
-    
-    model System5 "Two generators, two parallel (one with breaker) and one series, fixed branches"
-      extends System2(T1b(open = if time < 10 then false else true));
-    annotation(experiment(StopTime = 50, Interval = 0.02));
-    end System5;
-    
-    model System6 "Two generators, two-parallel and one series line with breaker, dynamic branches"
-      extends System5(
-        redeclare TransmissionLineDynamicBranch T1b(B = -5.0, open = if time < 10 then false else true));
-    annotation(experiment(StopTime = 50, Interval = 0.02));
-    end System6;
-    
-    model System7 "Three generators, two-parallel and two series lines with breaker, fixed branches"
-      extends System3(G2(p = 1));
-      Generator G3(Ta = 15);
-      Load L3(P = 1);
-      TransmissionLine T3;
-    equation
-      connect(G3.port, L3.port);
-      connect(G3.port, T3.port_b);
-      connect(G2.port, T3.port_a);
-    annotation(experiment(StopTime = 50, Interval = 0.02));
-    end System7;
-    
-    model System8 "Three generators, two-parallel and two series lines with breaker dynamic branches"
-      extends System7(
-        redeclare TransmissionLineDynamicBranch T2(B = -10.0, open = if time < 10 then false else true));
-    annotation(experiment(StopTime = 50, Interval = 0.02));
-    end System8;
-    */
   end IncompressibleFluid;
 
 annotation(uses(Modelica(version="3.2.3")));
