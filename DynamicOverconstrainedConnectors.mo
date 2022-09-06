@@ -537,11 +537,15 @@ package DynamicOverconstrainedConnectors
       SI.Pressure p "Fluid pressure";
       flow SI.MassFlowRate w "Mass flow rate";
       CircuitIdentifier id "Circuit id number";
+  annotation(
+        Icon(graphics = {Ellipse(lineColor = {0, 0, 255}, fillColor = {0, 0, 255}, fillPattern = FillPattern.Solid, extent = {{-100, 100}, {100, -100}})}));
     end FluidPort;
   
     partial model FlowModel "Base class for flow models"
-      FluidPort inlet;
-      FluidPort outlet;
+      FluidPort inlet annotation(
+        Placement(visible = true, transformation(origin = {-68, -14}, extent = {{-10, -10}, {10, 10}}, rotation = 0), iconTransformation(origin = {-100, 0}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+      FluidPort outlet annotation(
+        Placement(visible = true, transformation(origin = {-68, -14}, extent = {{-10, -10}, {10, 10}}, rotation = 0), iconTransformation(origin = {100, 0}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
       SI.MassFlowRate w;
       SI.Pressure dp;
     equation
@@ -560,6 +564,8 @@ package DynamicOverconstrainedConnectors
       dp = outlet.p - inlet.p;
       Connections.branch(inlet.id, outlet.id);
       inlet.id = outlet.id;
+    annotation(
+        Icon(graphics = {Ellipse(extent = {{-60, 60}, {60, -60}}), Line(origin = {-77.2071, 1.20711}, points = {{17.2071, -1.20711}, {-14.7929, -1.20711}, {-16.7929, 0.792893}}), Line(origin = {76, 0}, points = {{-16, 0}, {16, 0}}), Polygon(origin = {14, 0}, points = {{-46, 50}, {-46, -50}, {46, 0}, {-46, 50}, {46, 0}, {-46, 50}}), Text(origin = {0, -80}, extent = {{-100, 20}, {100, -20}}, textString = "%name")}));
     end Pump;
   
     partial model BaseValve "Base model for simple on-off valve model"
@@ -586,6 +592,8 @@ package DynamicOverconstrainedConnectors
         Kv = 0;
       end when;
       dp = inlet.p - outlet.p;
+    annotation(
+        Icon(graphics = {Polygon(origin = {0, 10}, points = {{-40, 30}, {40, -52}, {40, 30}, {-40, -50}, {-40, -50}, {-40, 30}}), Line(origin = {-69, -1.84746}, points = {{-29, 1}, {29, 1}}), Line(origin = {68.7458, -1.84746}, points = {{-29, 1}, {29, 1}}), Text(origin = {0, -80}, extent = {{-100, 20}, {100, -20}}, textString = "%name")}));
     end BaseValve;
     
     model Valve "Valve model with fixed connection branch"
@@ -613,6 +621,8 @@ package DynamicOverconstrainedConnectors
       Connections.branch(inlet.id, outlet.id);
       inlet.id = outlet.id;
       dp = inlet.p - outlet.p;
+    annotation(
+        Icon(graphics = {Rectangle(fillColor = {0, 0, 255}, fillPattern = FillPattern.Solid, extent = {{-60, 20}, {60, -20}}), Line(origin = {-80, 0}, points = {{-20, 0}, {20, 0}}), Line(origin = {78, 0}, points = {{-18, 0}, {18, 0}}), Text(origin = {0, -40}, extent = {{-100, 20}, {100, -20}}, textString = "%name")}));
     end Pipe;
   
     model ExpansionTank "Ideal expansion tank, fixes the pressure of the circuit it is attached to"
@@ -620,8 +630,8 @@ package DynamicOverconstrainedConnectors
       parameter Integer id = 0 "Circuit id";
       parameter Integer priority = 0 "Priority for selection as root node";
   
-      FluidPort inlet;
-  
+      FluidPort inlet  annotation(
+        Placement(visible = true, transformation(origin = {-26, -20}, extent = {{-10, -10}, {10, 10}}, rotation = 0), iconTransformation(origin = {0, -90}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
     equation    
       Connections.potentialRoot(inlet.id, priority);
       // If the tank is selected as root node, it determines the circuit pressure and id
@@ -632,64 +642,104 @@ package DynamicOverconstrainedConnectors
       else
         inlet.w = 0;
       end if;
+    annotation(
+        Icon(graphics = {Line(origin = {0, -60}, points = {{0, 20}, {0, -20}, {0, -20}}), Polygon(origin = {0, 10}, points = {{-40, 50}, {-40, -50}, {40, -50}, {40, 50}, {-40, 50}}), Rectangle(origin = {0, -7}, fillColor = {0, 0, 255}, fillPattern = FillPattern.Solid, extent = {{40, 33}, {-40, -33}}), Text(origin = {0, 80}, extent = {{-100, 20}, {100, -20}}, textString = "%name")}));
     end ExpansionTank;
     
     model System1 "Simple loop for testing"
-      Pump pump(n = if time < 1 then 1 else 0.8);
-      Valve valve(w0 = 1, dp0 = 1e4);
-      Pipe pipe1(w0 = 1, dp0 = 5e4);
-      Pipe pipe2(w0 = 1, dp0 = 5e4);
-      ExpansionTank tank;
+      Pump pump(n = if time < 1 then 1 else 0.8) annotation(
+        Placement(visible = true, transformation(origin = {-8, -6}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+      Valve valve(w0 = 1, dp0 = 1e4) annotation(
+        Placement(visible = true, transformation(origin = {22, -6}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+      Pipe pipe1(w0 = 1, dp0 = 5e4) annotation(
+        Placement(visible = true, transformation(origin = {40, -20}, extent = {{-10, -10}, {10, 10}}, rotation = -90)));
+      Pipe pipe2(w0 = 1, dp0 = 5e4) annotation(
+        Placement(visible = true, transformation(origin = {8, -34}, extent = {{-10, -10}, {10, 10}}, rotation = 180)));
+      ExpansionTank tank annotation(
+        Placement(visible = true, transformation(origin = {-18, 14}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
     equation
-      connect(pump.outlet, valve.inlet);
-      connect(valve.outlet, pipe1.inlet);
-      connect(pipe1.outlet, pipe2.inlet);
-      connect(pipe2.outlet, pump.inlet);
-      connect(tank.inlet, pump.inlet);
-    annotation(experiment(StopTime = 2, Interval = 0.02));
+      connect(pump.outlet, valve.inlet) annotation(
+        Line(points = {{2, -6}, {12, -6}}, color = {0, 0, 255}));
+      connect(valve.outlet, pipe1.inlet) annotation(
+        Line(points = {{32, -6}, {40, -6}, {40, -10}}, color = {0, 0, 255}));
+      connect(pipe1.outlet, pipe2.inlet) annotation(
+        Line(points = {{40, -30}, {40, -34}, {18, -34}}, color = {0, 0, 255}));
+      connect(pipe2.outlet, pump.inlet) annotation(
+        Line(points = {{-2, -34}, {-26, -34}, {-26, -6}, {-18, -6}}, color = {0, 0, 255}));
+    connect(tank.inlet, pump.inlet) annotation(
+        Line(points = {{-18, 6}, {-18, -6}}, color = {0, 0, 255}));
+    annotation(experiment(StopTime = 2, Interval = 0.02),
+        Diagram(coordinateSystem(extent = {{-40, 40}, {60, -60}})));
     end System1;
     
-    model System2 "Simple loop for testing"
-      Pump pumpA(n = if time < 1 then 1 else 0.8);
-      Pipe pipe1A(w0 = 1, dp0 = 3e4);
-      Pipe pipe2A(w0 = 1, dp0 = 3e4);
-      Pipe pipe3A(w0 = 1, dp0 = 3e4);
-      Pump pumpB;
-      Pipe pipe1B(w0 = 1, dp0 = 3e4);
-      Pipe pipe2B(w0 = 1, dp0 = 3e4);
-      Pipe pipe3B(w0 = 1, dp0 = 3e4);
-      replaceable Valve valveAB(close = if time < 2 then false else true)
+    model System2 "Network with two separable loops"
+      Pump pumpA(n = if time < 1 then 1 else 0.8) annotation(
+        Placement(visible = true, transformation(origin = {-66, 10}, extent = {{-10, 10}, {10, -10}}, rotation = 90)));
+      Pipe pipe1A(w0 = 1, dp0 = 3e4) annotation(
+        Placement(visible = true, transformation(origin = {-44, 40}, extent = {{10, 10}, {-10, -10}}, rotation = 180)));
+      Pipe pipe2A(w0 = 1, dp0 = 3e4) annotation(
+        Placement(visible = true, transformation(origin = {-20, 10}, extent = {{-10, -10}, {10, 10}}, rotation = -90)));
+      Pipe pipe3A(w0 = 1, dp0 = 3e4) annotation(
+        Placement(visible = true, transformation(origin = {-44, -20}, extent = {{-10, -10}, {10, 10}}, rotation = 180)));
+      Pump pumpB annotation(
+        Placement(visible = true, transformation(origin = {60, 10}, extent = {{-10, -10}, {10, 10}}, rotation = 90)));
+      Pipe pipe1B(w0 = 1, dp0 = 3e4) annotation(
+        Placement(visible = true, transformation(origin = {40, 40}, extent = {{-10, 10}, {10, -10}}, rotation = 180)));
+      Pipe pipe2B(w0 = 1, dp0 = 3e4) annotation(
+        Placement(visible = true, transformation(origin = {20, 10}, extent = {{-10, 10}, {10, -10}}, rotation = 270)));
+      Pipe pipe3B(w0 = 1, dp0 = 3e4) annotation(
+        Placement(visible = true, transformation(origin = {42, -20}, extent = {{10, -10}, {-10, 10}}, rotation = 180)));
+      replaceable Valve valveAB(close = if time < 2 then false else true)  annotation(
+        Placement(visible = true, transformation(origin = {0, 40}, extent = {{-10, -10}, {10, 10}}, rotation = 0)))
         constrainedby BaseValve;
-      replaceable Valve valveBA(close = if time < 4 then false else true)
+      replaceable Valve valveBA(close = if time < 4 then false else true) annotation(
+        Placement(visible = true, transformation(origin = {0, -20}, extent = {{10, -10}, {-10, 10}}, rotation = 0)))
         constrainedby BaseValve;
-      ExpansionTank tankA(id = 1, p0 = 2e5);
-      ExpansionTank tankB(id = 2, p0 = 2e5);
+      ExpansionTank tankA(id = 1, p0 = 2e5) annotation(
+        Placement(visible = true, transformation(origin = {-90, 16}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+      ExpansionTank tankB(id = 2, p0 = 2e5) annotation(
+        Placement(visible = true, transformation(origin = {90, 16}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
     equation
-      connect(pumpA.outlet, pipe1A.inlet);
-      connect(pipe1A.outlet, pipe2A.inlet);
-      connect(pipe2A.outlet, pipe3A.outlet);
-      connect(pipe3A.outlet, pumpA.inlet);
-      connect(tankA.inlet, pumpA.inlet);
-      connect(pumpB.outlet, pipe1B.inlet);
-      connect(pipe1B.outlet, pipe2B.inlet);
-      connect(pipe2B.outlet, pipe3B.outlet);
-      connect(pipe3B.outlet, pumpB.inlet);
-      connect(tankB.inlet, pumpB.inlet);
-      connect(valveAB.inlet, pipe2A.inlet);
-      connect(valveAB.outlet, pipe2B.inlet);
-      connect(valveBA.inlet, pipe2B.outlet);
-      connect(valveBA.outlet, pipe2A.outlet);
-    annotation(experiment(StopTime = 3, Interval = 0.02));
+      connect(pumpA.outlet, pipe1A.inlet) annotation(
+        Line(points = {{-66, 20}, {-66, 40}, {-54, 40}}, color = {0, 0, 255}));
+  connect(pipe1A.outlet, pipe2A.inlet) annotation(
+        Line(points = {{-34, 40}, {-20, 40}, {-20, 20}}, color = {0, 0, 255}));
+  connect(pipe2A.outlet, pipe3A.inlet) annotation(
+        Line(points = {{-20, 0}, {-20, -20}, {-34, -20}}, color = {0, 0, 255}));
+  connect(pipe3A.outlet, pumpA.inlet) annotation(
+        Line(points = {{-54, -20}, {-66, -20}, {-66, 0}}, color = {0, 0, 255}));
+  connect(pumpB.outlet, pipe1B.inlet) annotation(
+        Line(points = {{60, 20}, {60, 40}, {50, 40}}, color = {0, 0, 255}));
+  connect(pipe1B.outlet, pipe2B.inlet) annotation(
+        Line(points = {{30, 40}, {20, 40}, {20, 20}}, color = {0, 0, 255}));
+  connect(pipe2B.outlet, pipe3B.inlet) annotation(
+        Line(points = {{20, 0}, {20, -20}, {32, -20}}, color = {0, 0, 255}));
+  connect(pipe3B.outlet, pumpB.inlet) annotation(
+        Line(points = {{52, -20}, {60, -20}, {60, 0}}, color = {0, 0, 255}));
+  connect(pipe1A.outlet, valveAB.inlet) annotation(
+        Line(points = {{-34, 40}, {-10, 40}}, color = {0, 0, 255}));
+  connect(pipe1B.outlet, valveAB.outlet) annotation(
+        Line(points = {{30, 40}, {10, 40}}, color = {0, 0, 255}));
+  connect(pipe3A.inlet, valveBA.outlet) annotation(
+        Line(points = {{-34, -20}, {-10, -20}}, color = {0, 0, 255}));
+  connect(valveBA.inlet, pipe3B.inlet) annotation(
+        Line(points = {{10, -20}, {32, -20}}, color = {0, 0, 255}));
+  connect(tankA.inlet, pumpA.inlet) annotation(
+        Line(points = {{-90, 8}, {-90, 0}, {-66, 0}}, color = {0, 0, 255}));
+  connect(tankB.inlet, pumpB.inlet) annotation(
+        Line(points = {{90, 8}, {90, 0}, {60, 0}}, color = {0, 0, 255}));
+    annotation(experiment(StopTime = 3, Interval = 0.02),
+        Diagram(coordinateSystem(extent = {{-100, 60}, {100, -40}})));
     end System2;
 
     
 
-    model System3
+    model System3 "Same as System 2 but with longer simulation time, exposing singularity"
       extends System2;
 annotation(experiment(StopTime = 5, Interval = 0.02));
     end System3;
     
-    model System4
+    model System4 "Same as System 3 but using dynamic overconstrained connectors"
       extends System2(redeclare ValveDynamicBranch valveAB(close = if time < 2 then false else true),
                       redeclare ValveDynamicBranch valveBA(close = if time < 4 then false else true));
     annotation(experiment(StopTime = 5, Interval = 0.02));
