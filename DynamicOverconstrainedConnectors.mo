@@ -178,8 +178,8 @@ package DynamicOverconstrainedConnectors
       TransmissionLine T1b(B = -5.0) annotation(
         Placement(visible = true, transformation(origin = {-14, -6}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
       replaceable TransmissionLine T2(B = -10.0) annotation(
-        Placement(visible = true, transformation(origin = {16, 0}, extent = {{-10, -10}, {10, 10}}, rotation = 0)))constrainedby TransmissionLineBase annotation(
-        Placement(visible = true, transformation(origin = {0, 0}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+        Placement(visible = true, transformation(origin = {16, 0}, extent = {{-10, -10}, {10, 10}}, rotation = 0)))
+        constrainedby TransmissionLineBase ;
     equation
       connect(G1.port, L1.port) annotation(
         Line(points = {{-40, 0}, {-40, -10}}));
@@ -224,14 +224,22 @@ package DynamicOverconstrainedConnectors
     
     model System7 "Three generators, two-parallel and two series lines with breaker, fixed branches"
       extends System3(G2(p = 1));
-      Generator G3(Ta = 15);
-      Load L3(P = 1);
-      TransmissionLine T3;
+      Generator G3(Ta = 15) annotation(
+        Placement(visible = true, transformation(origin = {84, 0}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+      Load L3(P = 1) annotation(
+        Placement(visible = true, transformation(origin = {84, -10}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+      TransmissionLine T3  annotation(
+        Placement(visible = true, transformation(origin = {62, 0}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
     equation
-      connect(G3.port, L3.port);
-      connect(G3.port, T3.port_b);
-      connect(G2.port, T3.port_a);
-    annotation(experiment(StopTime = 50, Interval = 0.02));
+      connect(G2.port, T3.port_a) annotation(
+        Line(points = {{40, 0}, {52, 0}}));
+      connect(T3.port_b, G3.port) annotation(
+        Line(points = {{72, 0}, {84, 0}}));
+      connect(G3.port, L3.port) annotation(
+        Line(points = {{84, 0}, {84, -10}}));
+    annotation(experiment(StopTime = 50, Interval = 0.02),
+  Diagram(coordinateSystem(extent = {{-60, -25}, {100, 15}})),
+  Icon(coordinateSystem(extent = {{-60, -25}, {100, 15}})));
     end System7;
     
     model System8 "Three generators, two-parallel and two series lines with breaker dynamic branches"
