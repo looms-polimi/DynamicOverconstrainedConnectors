@@ -102,7 +102,7 @@ package DynamicOverconstrainedConnectors
       Connections.branch(port_a.omegaRef, port_b.omegaRef);
     end TransmissionLine;
 
-    model TransmissionLineVariableBranch "Purely inductive transmission line model with time-varying connection branch"
+    model TransmissionLineDynamicBranch "Purely inductive transmission line model with time-varying connection branch"
       extends TransmissionLineBase;
     equation
 // This if-equation is not valid according to Modelica 3.5
@@ -111,7 +111,7 @@ package DynamicOverconstrainedConnectors
         port_a.omegaRef = port_b.omegaRef;
         Connections.branch(port_a.omegaRef, port_b.omegaRef);
       end if;
-    end TransmissionLineVariableBranch;
+    end TransmissionLineDynamicBranch;
     
      model Generator "Idealized synchronous generator with ideal voltage control and basic primary frequency control"
        parameter SI.PerUnit V = 1 "Fixed rotor per unit voltage magnitude";
@@ -207,7 +207,7 @@ package DynamicOverconstrainedConnectors
     
     model System4 "Two generators, two-parallel and one series line with breaker, dynamic branches"
       extends System3(
-        redeclare TransmissionLineVariableBranch T2(B = -10.0, open = if time < 10 then false else true));
+        redeclare TransmissionLineDynamicBranch T2(B = -10.0, open = if time < 10 then false else true));
     annotation(experiment(StopTime = 50, Interval = 0.02));
     end System4;
     
@@ -218,7 +218,7 @@ package DynamicOverconstrainedConnectors
     
     model System6 "Two generators, two-parallel and one series line with breaker, dynamic branches"
       extends System5(
-        redeclare TransmissionLineVariableBranch T1b(B = -5.0, open = if time < 10 then false else true));
+        redeclare TransmissionLineDynamicBranch T1b(B = -5.0, open = if time < 10 then false else true));
     annotation(experiment(StopTime = 50, Interval = 0.02));
     end System6;
     
@@ -244,7 +244,7 @@ package DynamicOverconstrainedConnectors
     
     model System8 "Three generators, two-parallel and two series lines with breaker dynamic branches"
       extends System7(
-        redeclare TransmissionLineVariableBranch T2(B = -10.0, open = if time < 10 then false else true));
+        redeclare TransmissionLineDynamicBranch T2(B = -10.0, open = if time < 10 then false else true));
     annotation(experiment(StopTime = 50, Interval = 0.02));
     end System8;
     
@@ -284,7 +284,7 @@ package DynamicOverconstrainedConnectors
       extends System9(
         redeclare LoadVariableRoot L2(P = 0.1),
         redeclare LoadVariableRoot L3(P = 0.1),
-        redeclare TransmissionLineVariableBranch T1(open = if time < 0 then false else true));
+        redeclare TransmissionLineDynamicBranch T1(open = if time < 0 then false else true));
     annotation(experiment(StopTime = 50, Interval = 0.02));
     end System10;
   end PowerGridsComplex;
@@ -391,7 +391,7 @@ package DynamicOverconstrainedConnectors
       Connections.branch(port_a.omegaRef, port_b.omegaRef);
     end TransmissionLine;
     
-    model TransmissionLineVariableBranch "Purely inductive transmission line model with time-varying connection branch"
+    model TransmissionLineDynamicBranch "Purely inductive transmission line model with time-varying connection branch"
     extends TransmissionLineBase;
     equation
 // This if-equation is not valid according to Modelica 3.5
@@ -400,7 +400,7 @@ package DynamicOverconstrainedConnectors
         port_a.omegaRef = port_b.omegaRef;
         Connections.branch(port_a.omegaRef, port_b.omegaRef);
       end if;
-    end TransmissionLineVariableBranch;
+    end TransmissionLineDynamicBranch;
     
     model Generator "Idealized synchronous generator with ideal voltage control and basic primary frequency control"
       parameter SI.PerUnit V = 1 "Fixed rotor per unit voltage magnitude";
@@ -467,7 +467,7 @@ package DynamicOverconstrainedConnectors
     
     model System4 "Two generators, two-parallel and one series line with breaker, dynamic branches"
       extends System3(
-        redeclare TransmissionLineVariableBranch T2(B = -10.0, open = if time < 10 then false else true));
+        redeclare TransmissionLineDynamicBranch T2(B = -10.0, open = if time < 10 then false else true));
     annotation(experiment(StopTime = 50, Interval = 0.02));
     end System4;
     
@@ -478,7 +478,7 @@ package DynamicOverconstrainedConnectors
     
     model System6 "Two generators, two-parallel and one series line with breaker, dynamic branches"
       extends System5(
-        redeclare TransmissionLineVariableBranch T1b(B = -5.0, open = if time < 10 then false else true));
+        redeclare TransmissionLineDynamicBranch T1b(B = -5.0, open = if time < 10 then false else true));
     annotation(experiment(StopTime = 50, Interval = 0.02));
     end System6;
     
@@ -496,7 +496,7 @@ package DynamicOverconstrainedConnectors
     
     model System8 "Three generators, two-parallel and two series lines with breaker dynamic branches"
       extends System7(
-        redeclare TransmissionLineVariableBranch T2(B = -10.0, open = if time < 10 then false else true));
+        redeclare TransmissionLineDynamicBranch T2(B = -10.0, open = if time < 10 then false else true));
     annotation(experiment(StopTime = 50, Interval = 0.02));
     end System8;
   
@@ -523,7 +523,7 @@ package DynamicOverconstrainedConnectors
       extends System9(
         redeclare LoadVariableRoot L2(P = 0.1),
         redeclare LoadVariableRoot L3(P = 0.1),
-        redeclare TransmissionLineVariableBranch T1(open = if time < 0 then false else true));
+        redeclare TransmissionLineDynamicBranch T1(open = if time < 0 then false else true));
     annotation(experiment(StopTime = 50, Interval = 0.02));
     end System10;
   end PowerGridsReal;
@@ -781,7 +781,7 @@ annotation(experiment(StopTime = 5, Interval = 0.02));
     
     model System4 "Two generators, two-parallel and one series line with breaker, dynamic branches"
       extends System3(
-        redeclare TransmissionLineVariableBranch T2(B = -10.0, open = if time < 10 then false else true));
+        redeclare TransmissionLineDynamicBranch T2(B = -10.0, open = if time < 10 then false else true));
     annotation(experiment(StopTime = 50, Interval = 0.02));
     end System4;
     
@@ -792,7 +792,7 @@ annotation(experiment(StopTime = 5, Interval = 0.02));
     
     model System6 "Two generators, two-parallel and one series line with breaker, dynamic branches"
       extends System5(
-        redeclare TransmissionLineVariableBranch T1b(B = -5.0, open = if time < 10 then false else true));
+        redeclare TransmissionLineDynamicBranch T1b(B = -5.0, open = if time < 10 then false else true));
     annotation(experiment(StopTime = 50, Interval = 0.02));
     end System6;
     
@@ -810,7 +810,7 @@ annotation(experiment(StopTime = 5, Interval = 0.02));
     
     model System8 "Three generators, two-parallel and two series lines with breaker dynamic branches"
       extends System7(
-        redeclare TransmissionLineVariableBranch T2(B = -10.0, open = if time < 10 then false else true));
+        redeclare TransmissionLineDynamicBranch T2(B = -10.0, open = if time < 10 then false else true));
     annotation(experiment(StopTime = 50, Interval = 0.02));
     end System8;
     */
