@@ -364,6 +364,7 @@ package DynamicOverconstrainedConnectors
     partial model TransmissionLineBase "Purely inductive transmission line - base model"
       parameter SI.PerUnit B = -5.0 "Line series per unit susceptance";
       discrete SI.PerUnit B_act "Actual value of per unit susceptance including breaker status";
+      SI.PerUnit Pab "Active power flow from port_a to port_b";
       Boolean closed "State of line breaker";
       Boolean open = false "Command to open the line breaker";
       Boolean close = false "Command to close the line breaker";
@@ -377,6 +378,7 @@ package DynamicOverconstrainedConnectors
       port_a.i_im + port_b.i_im = 0;
       port_a.i_re = -B_act*(port_a.v_im - port_b.v_im);
       port_a.i_im =  B_act*(port_a.v_re - port_b.v_re);
+      Pab = port_a.v_re*port_a.i_re + port_a.v_im*port_a.i_im;
       when open then
         closed = false;
         B_act = 0;
