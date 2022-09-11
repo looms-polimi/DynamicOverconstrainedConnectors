@@ -340,6 +340,7 @@ package DynamicOverconstrainedConnectors
     model LoadVariableRoot "AC load model"
       extends LoadBase;
     equation
+      /* Original formulation
       if port.omegaRef > 0 then 
         // the load is connected to a synchronous island with a generator as a root node
          port.v_re*port.i_re + port.v_im*port.i_im = P;
@@ -359,6 +360,24 @@ package DynamicOverconstrainedConnectors
       if Connections.isRoot(port.omegaRef) then
         port.omegaRef = 0;
       end if;
+      */
+    
+      // I-equations reformulated as conditional expressions
+      (if port.omegaRef > 0 then (port.v_re*port.i_re + port.v_im*port.i_im - P)
+       elseif Connections.isRoot(port.omegaRef) then port.v_re
+       else port.i_re) = 0;
+    
+      (if port.omegaRef > 0 then (-port.v_re*port.i_im + port.v_im*port.i_re - Q)
+       elseif Connections.isRoot(port.omegaRef) then port.v_im
+       else port.i_im) = 0;
+    
+      // Very high priority number, gets selected only if there are no generators in the sub-graph
+      Connections.potentialRoot(port.omegaRef, 10000);
+      // Set omegaRef = 0 if the load is selected as root node, hence there are no generators in the sub-graph
+      if Connections.isRoot(port.omegaRef) then
+        port.omegaRef = 0;
+      end if;
+     
     end LoadVariableRoot;
   
     partial model TransmissionLineBase "Purely inductive transmission line - base model"
@@ -709,7 +728,7 @@ package DynamicOverconstrainedConnectors
         constrainedby BaseValve;
       ExpansionTank tankA(id = 1, p0 = 2e5) annotation(
         Placement(visible = true, transformation(origin = {-90, 16}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
-      ExpansionTank tankB(id = 2, p0 = 2e5) annotation(
+      ExpansionTank tankB(id = 2, p0 = 300000) annotation(
         Placement(visible = true, transformation(origin = {90, 16}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
     equation
       connect(pumpA.outlet, pipe1A.inlet) annotation(
