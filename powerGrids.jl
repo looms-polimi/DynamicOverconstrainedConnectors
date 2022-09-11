@@ -90,6 +90,14 @@ function simulateAndPlotPowerSystemSpecial(modelName; solver)
   #= The IM and REAL variables  =#
   p = plotPartial(sols, [OM.OMBackend.T2_port_a_i_re], tspan, "./Plots/$(modelName)/$(modelName)T2_port_a_i_re")
   p = plotPartial(sols, [OM.OMBackend.T2_port_a_i_im], tspan, "./Plots/$(modelName)/$(modelName)T2_port_a_i_im")
+  p = plotPartial(sols, [OM.OMBackend.G2_port_v_re], tspan, "./Plots/$(modelName)/$(modelName)G2_port_v_re")
+  if (modelName == "System8")
+    p = plotPartial(sols, [OM.OMBackend.G3_port_v_re], tspan, "./Plots/$(modelName)/$(modelName)G3_port_v_re")
+    p = plotPartial(sols, [OM.OMBackend.G3_omega], tspan, "./Plots/$(modelName)/$(modelName)G3_omega")
+    p = plotPartial(sols, [OM.OMBackend.G3_theta], tspan, "./Plots/$(modelName)/$(modelName)G3_theta")
+    p = plotPartial(sols, [OM.OMBackend.G3_port_omegaRef], tspan, "./Plots/$(modelName)/$(modelName)G3_port_omegaRef")
+    p = plotPartial(sols, [OM.OMBackend.T3_Pab_v_re], tspan, "./Plots/$(modelName)/$(modelName)T3_Pab_v_re_paper")
+  end
 end
 
 function PowerGridsSystem1()
