@@ -286,7 +286,7 @@ package DynamicOverconstrainedConnectors
       extends System9(
         redeclare LoadVariableRoot L2(P = 0.1),
         redeclare LoadVariableRoot L3(P = 0.1),
-        redeclare TransmissionLineDynamicBranch T1(open = if time < 0 then false else true));
+        redeclare TransmissionLineDynamicBranch T1(open = if time < 10 then false else true));
     annotation(experiment(StopTime = 50, Interval = 0.02));
     end System10;
   end PowerGridsComplex;
@@ -546,7 +546,7 @@ package DynamicOverconstrainedConnectors
       extends System9(
         redeclare LoadVariableRoot L2(P = 0.1),
         redeclare LoadVariableRoot L3(P = 0.1),
-        redeclare TransmissionLineDynamicBranch T1(open = if time < 0 then false else true));
+        redeclare TransmissionLineDynamicBranch T1(open = if time < 10 then false else true));
     annotation(experiment(StopTime = 50, Interval = 0.02));
     end System10;
   end PowerGridsReal;
