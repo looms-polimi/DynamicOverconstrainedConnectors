@@ -22,9 +22,9 @@ function plotPartial(sols,
   fp = plot(subPlots...)
   Plots.pdf(fp, file)
   #= Joint plot=#
-  p = plot(first(sols); vars = vars, xlim = first(tspan), ylim=last(tspan))
+  p = plot(first(sols); vars = vars, limits = tspan)
   for i in 2:length(sols)
-    p = plot!(sols[i]; vars = vars, xlim = first(tspan), ylim=last(tspan))
+    p = plot!(sols[i]; vars = vars, limits = tspan)
   end    
   Plots.pdf(p, file * "Combined")
 end

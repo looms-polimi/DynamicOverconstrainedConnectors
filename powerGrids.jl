@@ -96,7 +96,7 @@ function simulateAndPlotPowerSystemSpecial(modelName; solver)
     p = plotPartial(sols, [OM.OMBackend.G3_omega], tspan, "./Plots/$(modelName)/$(modelName)G3_omega")
     p = plotPartial(sols, [OM.OMBackend.G3_theta], tspan, "./Plots/$(modelName)/$(modelName)G3_theta")
     p = plotPartial(sols, [OM.OMBackend.G3_port_omegaRef], tspan, "./Plots/$(modelName)/$(modelName)G3_port_omegaRef")
-    p = plotPartial(sols, [OM.OMBackend.T3_Pab_v_re], tspan, "./Plots/$(modelName)/$(modelName)T3_Pab_v_re_paper")
+    p = plotPartial(sols, [OM.OMBackend.T3_Pab], tspan, "./Plots/$(modelName)/$(modelName)T3_Pab_paper")
   end
 end
 
