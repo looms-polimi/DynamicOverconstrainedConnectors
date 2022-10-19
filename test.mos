@@ -1,6 +1,6 @@
 setCommandLineOptions("--dumpFlatModel");
 //setCompilerFlags("-O2 -g -d=cgraph,cgraphGraphVizFile");getErrorString();
-loadFile("./PerTest.mo");getErrorString();
+loadFile("./DynamicOverconstrainedConnectors.mo");getErrorString();
 // instantiateModel(DynamicOverconstrainedConnectors.ACPort);getErrorString();
 // instantiateModel(DynamicOverconstrainedConnectors.Load);getErrorString();
 // instantiateModel(DynamicOverconstrainedConnectors.Generator);getErrorString();
