@@ -25,7 +25,7 @@ function plotPartial(sols,
   p = plot(first(sols); vars = vars, limits = tspan)
   for i in 2:length(sols)
     p = plot!(sols[i]; vars = vars, limits = tspan)
-  end    
+  end
   Plots.pdf(p, file * "Combined")
 end
 
@@ -33,7 +33,7 @@ include("powerGrids.jl")
 include("incompressibleFluidNetworks.jl")
 
 function plotSystem4Special1()
-  solver = :(Rodas5())  
+  solver = :(Rodas5())
   sol = OM.simulate("DynamicOverconstrainedConnectors.PowerGridsReal.System4",
                     file;
                     startTime = 0.0,
@@ -49,7 +49,7 @@ end
 
 
 function plotSystem8Special1()
-  solver = :(Rodas5())  
+  solver = :(Rodas5())
   sol = OM.simulate("DynamicOverconstrainedConnectors.PowerGridsReal.System8",
                     file;
                     startTime = 0.0,
@@ -64,7 +64,7 @@ end
 
 
 function plotSystem8SpecialT3_Pab()
-  solver = :(Rodas5())  
+  solver = :(Rodas5())
   sol = OM.simulate("DynamicOverconstrainedConnectors.PowerGridsReal.System8",
                     file;
                     startTime = 0.0,
@@ -80,7 +80,7 @@ end
 
 
 function plotSystem8SpecialG3_port_v_re()
-  solver = :(Rodas5())  
+  solver = :(Rodas5())
   sol = OM.simulate("DynamicOverconstrainedConnectors.PowerGridsReal.System8",
                     file;
                     startTime = 0.0,
@@ -96,7 +96,7 @@ end
 
 
 function plotSystem7G3_v_re()
-  solver = :(Rodas5())  
+  solver = :(Rodas5())
   sol = OM.simulate("DynamicOverconstrainedConnectors.PowerGridsReal.System7",
                     file;
                     startTime = 0.0,
@@ -111,7 +111,7 @@ end
 
 
 function plotSystem7G2_v_re()
-  solver = :(Rodas5())  
+  solver = :(Rodas5())
   sol = OM.simulate("DynamicOverconstrainedConnectors.PowerGridsReal.System7",
                     file;
                     startTime = 0.0,
@@ -126,7 +126,7 @@ end
 
 
 function plotSystem7Special2()
-  solver = :(Rodas5())  
+  solver = :(Rodas5())
   sol = OM.simulate("DynamicOverconstrainedConnectors.PowerGridsReal.System7",
                     file;
                     startTime = 0.0,
@@ -138,23 +138,3 @@ function plotSystem7Special2()
   p = plot(p1, p2)
   Plots.pdf(p, "System7_G1_G2_G3_port_v_re_paper")
 end
-
-
-#solver = :(Rodas5())
-#simulateAndPlotSystem("System2"; solver = solver)
-#= Simulate System 3=#
-#simulateAndPlotSystem("System3"; solver = solver)
-
-#println("Testing System 2")
-#res = OM.generateFlatModelica("DynamicOverconstrainedConnectors.PowerGridsReal.System2", file; MSL = true)
-#println(res)
-
-# println("Testing System 3")
-# res = OM.generateFlatModelica("DynamicOverconstrainedConnectors.PowerGridsReal.System3", file; MSL = true)
-# println(res)
-
-# println("Testing System 4")
-# res = OM.generateFlatModelica("DynamicOverconstrainedConnectors.PowerGridsReal.System4", file; MSL = true)
-# println(res)
-
-

@@ -788,10 +788,10 @@ package DynamicOverconstrainedConnectors
       extends System2;
 annotation(experiment(StopTime = 5, Interval = 0.02));
     end System3;
-    
-    model System4 "Same as System 3 but using dynamic overconstrained connectors"
-      extends System2(redeclare ValveDynamicBranch valveAB(close = if time < 2 then false else true),
-                      redeclare ValveDynamicBranch valveBA(close = if time < 4 then false else true));
+
+    model System4
+      extends System2(redeclare ValveDynamicBranch valveAB(close = if time < 2 then false else true), //Time Bound. In total one sructural change. Both add equations to the model
+                      redeclare ValveDynamicBranch valveBA(close = if time < 4 then false else true)); //Time Bound. In total one structural change. Activated at timestamp 4.0
     annotation(experiment(StopTime = 5, Interval = 0.02));
     end System4;
 
