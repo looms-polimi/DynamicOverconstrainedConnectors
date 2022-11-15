@@ -49,8 +49,9 @@ package DynamicOverconstrainedConnectors
 
     model LoadVariableRoot "AC load model with provision for unsupplied sub-networks"
       extends LoadBase;
+      constant Real eps = 1e-3 "Small nonzero value for triggering powerless island condition";
     equation
-      if port.omegaRef > 0 then 
+      if port.omegaRef > eps then
         // the load is connected to a synchronous island with a generator as a root node
         port.v*CM.conj(port.i) = Complex(P,Q);
       elseif Connections.isRoot(port.omegaRef) then
