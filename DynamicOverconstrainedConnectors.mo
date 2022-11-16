@@ -340,6 +340,7 @@ package DynamicOverconstrainedConnectors
     
     model LoadVariableRoot "AC load model"
       extends LoadBase;
+      constant Real eps = 1e-3 "Small nonzero value for triggering powerless island condition";
     equation
       /* Original formulation
       if port.omegaRef > 0 then 
@@ -364,11 +365,11 @@ package DynamicOverconstrainedConnectors
       */
     
       // I-equations reformulated as conditional expressions
-      (if port.omegaRef > 0 then (port.v_re*port.i_re + port.v_im*port.i_im - P)
+      (if port.omegaRef > eps then (port.v_re*port.i_re + port.v_im*port.i_im - P)
        elseif Connections.isRoot(port.omegaRef) then port.v_re
        else port.i_re) = 0;
     
-      (if port.omegaRef > 0 then (-port.v_re*port.i_im + port.v_im*port.i_re - Q)
+      (if port.omegaRef > eps then (-port.v_re*port.i_im + port.v_im*port.i_re - Q)
        elseif Connections.isRoot(port.omegaRef) then port.v_im
        else port.i_im) = 0;
     
